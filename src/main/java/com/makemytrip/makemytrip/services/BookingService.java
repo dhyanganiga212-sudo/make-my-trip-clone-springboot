@@ -74,4 +74,58 @@ public class BookingService {
         throw new RuntimeException("User or flight not found");
     }
 
+    public Booking cancelBooking(String userId, String bookingInternalId, String reason){
+        Optional<Users> usersOptional = userRepository.findById(userId);
+        if(!usersOptional.isPresent()){
+            throw new RuntimeException("User not found");
+        }
+        Users user = usersOptional.get();
+
+        Booking targetBooking = null;
+        for(Booking b : user.getBookings()){
+            if(b.getId().equals(bookingInternalId)){
+                targetBooking = b;
+                break;
+            }
+        }
+
+        if(targetBooking == null){
+            throw new RuntimeException("Booking not found");
+        }
+        if(targetBooking.getIsCancelled()){
+            throw new RuntimeException("Booking is already cancelled");
+        }
+
+        long hoursSinceBooking = (System.currentTimeMillis() - targetBooking.getCreatedAt()) / (1000 * 60 * 60);
+        double refundPercentage = (hoursSinceBooking <= 24) ? 0.5 : 1.0;
+        double refundAmount = targetBooking.getTotalPrice() * refundPercentage;
+
+        targetBooking.setIsCancelled(true);
+        targetBooking.setStatus("cancelled");
+        targetBooking.setCancelledAt(LocalDate.now().toString());
+        targetBooking.setCancellationReason(reason);
+        targetBooking.setRefundAmount(refundAmount);
+        targetBooking.setRefundStatus("pending");
+
+        // Restore availability
+        if(targetBooking.getType().equals("Flight")){
+            Optional<Flight> flightOptional = flightRepository.findById(targetBooking.getBookingId());
+            if(flightOptional.isPresent()){
+                Flight flight = flightOptional.get();
+                flight.setAvailableSeats(flight.getAvailableSeats() + targetBooking.getQuantity());
+                flightRepository.save(flight);
+            }
+        } else if(targetBooking.getType().equals("Hotel")){
+            Optional<Hotel> hotelOptional = hotelRepository.findById(targetBooking.getBookingId());
+            if(hotelOptional.isPresent()){
+                Hotel hotel = hotelOptional.get();
+                hotel.setAvailableRooms(hotel.getAvailableRooms() + targetBooking.getQuantity());
+                hotelRepository.save(hotel);
+            }
+        }
+
+        userRepository.save(user);
+        return targetBooking;
+    }
+
 }

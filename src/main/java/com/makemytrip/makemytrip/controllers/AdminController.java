@@ -64,7 +64,9 @@ public class AdminController {
             hotel.setLocation(updatedHotel.getLocation());
             hotel.setAvailableRooms(updatedHotel.getAvailableRooms());
             hotel.setPricePerNight(updatedHotel.getPricePerNight());
-            hotel.setamenities((updatedHotel.getamenities()));
+            hotel.setamenities((updatedHotel.getamenities()));  
+          hotel.setTags(updatedHotel.getTags());
+
             hotelRepository.save(hotel);
             return ResponseEntity.ok(hotel);
             }
