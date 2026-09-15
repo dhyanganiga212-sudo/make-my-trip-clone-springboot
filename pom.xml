@@ -28,7 +28,7 @@
 	</scm>
 	<properties>
 		<java.version>17</java.version>
-		<mongodb-driver.version>4.11.1</mongodb-driver.version>
+		<mongodb.version>4.11.1</mongodb.version>
 	</properties>
 	<dependencies>
 		<dependency>
