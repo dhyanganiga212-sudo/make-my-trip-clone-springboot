@@ -259,19 +259,18 @@ export default function Home() {
               />
             </div>
 
-            <div className="col-span-1">
-              <SearchInput
-                icon={<Users className="text-gray-400" />}
-                placeholder="Travelers"
-                value={travelers.toString()}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  settravelers(parseInt(e.target.value) || 1)
-                }
-                subtitle="Number of travelers"
-                type="number"
-              />
-            </div>
-
+              <div className="col-span-1">
+     <SearchInput
+       icon={<Users className="text-gray-400" />}
+       placeholder={bookingtype === "flights" ? "Travelers" : "Guests"}
+       value={travelers.toString()}
+       onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+         settravelers(parseInt(e.target.value) || 1)
+       }
+       subtitle={bookingtype === "flights" ? "Number of travelers" : "Number of guests"}
+       type="number"
+     />
+   </div>
             <Button className="col-span-1 h-full" onClick={handlesearch}>
               SEARCH
             </Button>
